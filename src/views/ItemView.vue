@@ -49,7 +49,7 @@ export default {
   // it might take a long time to load threads with hundreds of comments
   // due to how the HN Firebase API works.
   asyncData ({ store, route: { params: { id }}}) {
-    return store.dispatch('FETCH_ITEMS', { ids: [id] })
+    // return store.dispatch('FETCH_ITEMS', { ids: [id] })
   },
 
   title () {
@@ -83,11 +83,11 @@ export default {
 // recursively fetch all descendent comments
 function fetchComments (store, item) {
   if (item && item.kids) {
-    return store.dispatch('FETCH_ITEMS', {
-      ids: item.kids
-    }).then(() => Promise.all(item.kids.map(id => {
-      return fetchComments(store, store.state.items[id])
-    })))
+    // return store.dispatch('FETCH_ITEMS', {
+    //   ids: item.kids
+    // }).then(() => Promise.all(item.kids.map(id => {
+    //   return fetchComments(store, store.state.items[id])
+    // })))
   }
 }
 </script>

@@ -1,15 +1,17 @@
 const path = require('path')
 const webpack = require('webpack')
-const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const ExtractCssChunksPlugin = require('extract-css-chunks-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const { VueLoaderPlugin } = require('vue-loader')
 
 const isProd = process.env.NODE_ENV === 'production'
 
 module.exports = {
+  mode: 'production',
   devtool: isProd
     ? false
-    : '#cheap-module-source-map',
+    : 'cheap-module-source-map',
   output: {
     path: path.resolve(__dirname, '../dist'),
     publicPath: '/dist/',
@@ -20,6 +22,10 @@ module.exports = {
       'public': path.resolve(__dirname, '../public')
     }
   },
+  optimization: isProd ? {
+    minimize: true,
+    minimizer: [new TerserPlugin()],
+  } : {},
   module: {
     noParse: /es6-promise\.js$/, // avoid webpack shimming process
     rules: [
@@ -48,17 +54,48 @@ module.exports = {
       {
         test: /\.styl(us)?$/,
         use: isProd
-          ? ExtractTextPlugin.extract({
-              use: [
-                {
-                  loader: 'css-loader',
-                  options: { minimize: true }
-                },
-                'stylus-loader'
-              ],
-              fallback: 'vue-style-loader'
-            })
+          ? [
+            {
+              loader: ExtractCssChunksPlugin.loader,
+              options: {
+                hot: !isProd,
+                reloadAll: !isProd
+              }
+            },
+            {
+              loader: 'css-loader',
+            },
+            'stylus-loader',
+          ]
           : ['vue-style-loader', 'css-loader', 'stylus-loader']
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: isProd
+          ? [
+            {
+              loader: ExtractCssChunksPlugin.loader,
+              options: {
+                hot: !isProd,
+                reloadAll: !isProd
+              }
+            },
+            {
+              loader: 'css-loader',
+            },
+            {
+              loader: 'sass-loader',
+              options: {},
+            },
+          ]
+          : [
+            'vue-style-loader',
+            'css-loader',
+            {
+              loader: 'sass-loader',
+              options: {},
+            },
+          ],
       },
     ]
   },
@@ -67,17 +104,19 @@ module.exports = {
   },
   plugins: isProd
     ? [
-        new VueLoaderPlugin(),
-        new webpack.optimize.UglifyJsPlugin({
-          compress: { warnings: false }
-        }),
-        new webpack.optimize.ModuleConcatenationPlugin(),
-        new ExtractTextPlugin({
-          filename: 'common.[chunkhash].css'
-        })
-      ]
+      new VueLoaderPlugin(),
+      new webpack.optimize.ModuleConcatenationPlugin(),
+      new ExtractCssChunksPlugin({
+        filename: isProd ? 'css/[name].[contenthash:8].css' : '[name].css',
+        chunkFilename: isProd ? 'css/[name].[contenthash:8].chunk.css' : '[name].chunk.css'
+      })
+    ]
     : [
-        new VueLoaderPlugin(),
-        new FriendlyErrorsPlugin()
-      ]
+      new VueLoaderPlugin(),
+      new FriendlyErrorsPlugin(),
+      new ExtractCssChunksPlugin({
+        filename: isProd ? 'css/[name].[contenthash:8].css' : '[name].css',
+        chunkFilename: isProd ? 'css/[name].[contenthash:8].chunk.css' : '[name].chunk.css'
+      })
+    ]
 }

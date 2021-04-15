@@ -61,9 +61,9 @@ export default {
     // watch the current list for realtime updates
     this.unwatchList = watchList(this.type, ids => {
       this.$store.commit('SET_LIST', { type: this.type, ids })
-      this.$store.dispatch('ENSURE_ACTIVE_ITEMS').then(() => {
-        this.displayedItems = this.$store.getters.activeItems
-      })
+      // this.$store.dispatch('ENSURE_ACTIVE_ITEMS').then(() => {
+      //   this.displayedItems = this.$store.getters.activeItems
+      // })
     })
   },
 
@@ -80,78 +80,106 @@ export default {
   methods: {
     loadItems (to = this.page, from = -1) {
       this.$bar.start()
-      this.$store.dispatch('FETCH_LIST_DATA', {
-        type: this.type
-      }).then(() => {
-        if (this.page < 0 || this.page > this.maxPage) {
-          this.$router.replace(`/${this.type}/1`)
-          return
-        }
-        this.transition = from === -1
-          ? null
-          : to > from ? 'slide-left' : 'slide-right'
-        this.displayedPage = to
-        this.displayedItems = this.$store.getters.activeItems
-        this.$bar.finish()
-      })
+      // this.$store.dispatch('FETCH_LIST_DATA', {
+      //   type: this.type
+      // }).then(() => {
+      //   if (this.page < 0 || this.page > this.maxPage) {
+      //     this.$router.replace(`/${this.type}/1`)
+      //     return
+      //   }
+      //   this.transition = from === -1
+      //     ? null
+      //     : to > from ? 'slide-left' : 'slide-right'
+      //   this.displayedPage = to
+      //   this.displayedItems = this.$store.getters.activeItems
+      //   this.$bar.finish()
+      // })
     }
   }
 }
 </script>
 
-<style lang="stylus">
-.news-view
-  padding-top 45px
+<style lang="scss" scoped>
+.news-view {
+  padding-top: 45px;
+}
 
-.news-list-nav, .news-list
-  background-color #fff
-  border-radius 2px
 
-.news-list-nav
-  padding 15px 30px
-  position fixed
-  text-align center
-  top 55px
-  left 0
-  right 0
-  z-index 998
-  box-shadow 0 1px 2px rgba(0,0,0,.1)
-  a
-    margin 0 1em
-  .disabled
-    color #ccc
+.news-list-nav,
+.news-list {
+  background-color: #fff;
+  border-radius: 2px;
+}
 
-.news-list
-  position absolute
-  margin 30px 0
-  width 100%
-  transition all .5s cubic-bezier(.55,0,.1,1)
-  ul
-    list-style-type none
-    padding 0
-    margin 0
+.news-list-nav {
+  padding: 15px 30px;
+  position: fixed;
+  text-align: center;
+  top: 55px;
+  left: 0;
+  right: 0;
+  z-index: 998;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
 
-.slide-left-enter, .slide-right-leave-to
-  opacity 0
-  transform translate(30px, 0)
+  a {
+    margin: 0 1em;
 
-.slide-left-leave-to, .slide-right-enter
-  opacity 0
-  transform translate(-30px, 0)
+    .disabled {
+      color: #ccc;
+    }
+  }
+}
 
-.item-move, .item-enter-active, .item-leave-active
-  transition all .5s cubic-bezier(.55,0,.1,1)
+.news-list {
+  position: absolute;
+  margin: 30px 0;
+  width: 100%;
+  transition: all .5s cubic-bezier(.55, 0, .1, 1);
 
-.item-enter
-  opacity 0
-  transform translate(30px, 0)
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+}
 
-.item-leave-active
-  position absolute
-  opacity 0
-  transform translate(30px, 0)
+.slide-left-enter,
+.slide-right-leave-to {
+  opacity: 0;
+  transform: translate(30px, 0);
+}
 
-@media (max-width 600px)
-  .news-list
-    margin 10px 0
+
+.slide-left-leave-to,
+.slide-right-enter {
+  opacity: 0;
+  transform: translate(-30px, 0);
+}
+
+
+.item-move,
+.item-enter-active,
+.item-leave-active {
+  transition: all .5s cubic-bezier(.55, 0, .1, 1);
+}
+
+
+.item-enter {
+  opacity: 0;
+  transform: translate(30px, 0);
+}
+
+
+.item-leave-active {
+  position: absolute;
+  opacity: 0;
+  transform: translate(30px, 0);
+}
+
+@media (max-width: 600px) {
+  .news-list {
+    margin: 10px 0
+  }
+}
+
 </style>

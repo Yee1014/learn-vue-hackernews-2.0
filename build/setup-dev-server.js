@@ -2,6 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const MFS = require('memory-fs')
 const webpack = require('webpack')
+const middleware = require('webpack-dev-middleware')
 const chokidar = require('chokidar')
 const clientConfig = require('./webpack.client.config')
 const serverConfig = require('./webpack.server.config')
@@ -9,7 +10,8 @@ const serverConfig = require('./webpack.server.config')
 const readFile = (fs, file) => {
   try {
     return fs.readFileSync(path.join(clientConfig.output.path, file), 'utf-8')
-  } catch (e) {}
+  } catch (e) {
+  }
 }
 
 module.exports = function setupDevServer (app, templatePath, cb) {
@@ -18,7 +20,9 @@ module.exports = function setupDevServer (app, templatePath, cb) {
   let clientManifest
 
   let ready
-  const readyPromise = new Promise(r => { ready = r })
+  const readyPromise = new Promise(r => {
+    ready = r
+  })
   const update = () => {
     if (bundle && clientManifest) {
       ready()
@@ -41,24 +45,38 @@ module.exports = function setupDevServer (app, templatePath, cb) {
   clientConfig.entry.app = ['webpack-hot-middleware/client', clientConfig.entry.app]
   clientConfig.output.filename = '[name].js'
   clientConfig.plugins.push(
-    new webpack.HotModuleReplacementPlugin(),
-    new webpack.NoEmitOnErrorsPlugin()
+    new webpack.HotModuleReplacementPlugin()
+    // new webpack.NoEmitOnErrorsPlugin()
   )
 
   // dev middleware
-  const clientCompiler = webpack(clientConfig)
-  const devMiddleware = require('webpack-dev-middleware')(clientCompiler, {
+  const clientCompiler = webpack(clientConfig, (err, stats) => {
+    if (err || stats.hasErrors()) {
+      // [在这里处理错误](#error-handling)
+      console.log(err)
+    }
+  })
+  const devMiddleware = middleware(clientCompiler, {
     publicPath: clientConfig.output.publicPath,
-    noInfo: true
+    serverSideRender: true,
   })
   app.use(devMiddleware)
-  clientCompiler.plugin('done', stats => {
+  clientCompiler.run({
+    // [watchOptions](/configuration/watch/#watchoptions) 示例
+    aggregateTimeout: 300,
+    poll: undefined
+  }, (err, stats) => {
+    console.log(err, stats)
+    if (err) throw err
+    if (!stats) return
+    if (stats.hasErrors()) {
+      console.error(err)
+      return
+    }
     stats = stats.toJson()
-    stats.errors.forEach(err => console.error(err))
     stats.warnings.forEach(err => console.warn(err))
-    if (stats.errors.length) return
     clientManifest = JSON.parse(readFile(
-      devMiddleware.fileSystem,
+      devMiddleware.outputFileSystem,
       'vue-ssr-client-manifest.json'
     ))
     update()
@@ -68,11 +86,21 @@ module.exports = function setupDevServer (app, templatePath, cb) {
   app.use(require('webpack-hot-middleware')(clientCompiler, { heartbeat: 5000 }))
 
   // watch and update server renderer
-  const serverCompiler = webpack(serverConfig)
+  const serverCompiler = webpack(serverConfig, (err, stats) => {
+    if (err || stats.hasErrors()) {
+      // [在这里处理错误](#error-handling)
+      console.log(err)
+    }
+  })
   const mfs = new MFS()
   serverCompiler.outputFileSystem = mfs
   serverCompiler.watch({}, (err, stats) => {
     if (err) throw err
+    if (!stats) return
+    if (stats.hasErrors()) {
+      console.error(err)
+      return
+    }
     stats = stats.toJson()
     if (stats.errors.length) return
 

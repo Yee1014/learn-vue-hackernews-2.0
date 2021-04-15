@@ -30,7 +30,7 @@ export default {
   },
 
   asyncData ({ store, route: { params: { id }}}) {
-    return store.dispatch('FETCH_USER', { id })
+    // return store.dispatch('FETCH_USER', { id })
   },
 
   title () {

@@ -50,8 +50,14 @@ if (isProd) {
 } else {
   // In development: setup the dev server with watch and hot-reload,
   // and create a new renderer on bundle / index template update.
-  readyPromise = require('./build/setup-dev-server')(
-    app,
+  // readyPromise = require('./build/setup-dev-server')(
+  //   app,
+  //   templatePath,
+  //   (bundle, options) => {
+  //     renderer = createRenderer(bundle, options)
+  //   }
+  // )
+  readyPromise = require('./server-dev')(
     templatePath,
     (bundle, options) => {
       renderer = createRenderer(bundle, options)
@@ -81,13 +87,13 @@ app.use(microcache.cacheSeconds(1, req => useMicroCache && req.originalUrl))
 function render (req, res) {
   const s = Date.now()
 
-  res.setHeader("Content-Type", "text/html")
-  res.setHeader("Server", serverInfo)
+  res.setHeader('Content-Type', 'text/html')
+  res.setHeader('Server', serverInfo)
 
   const handleError = err => {
     if (err.url) {
       res.redirect(err.url)
-    } else if(err.code === 404) {
+    } else if (err.code === 404) {
       res.status(404).send('404 | Page Not Found')
     } else {
       // Render Error Page or Redirect

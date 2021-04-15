@@ -1,6 +1,16 @@
 {
   "presets": [
-    ["env", { "modules": false }]
+    [
+      "@babel/preset-env",
+      {
+        "corejs": {
+          "version": "3.8",
+          "proposals": true
+        },
+        "modules": false,
+        "useBuiltIns": "entry"
+      }
+    ]
   ],
   "plugins": [
     "syntax-dynamic-import"
