@@ -6,9 +6,11 @@
  */
 const fs = require('fs')
 const path = require('path')
-const MFS = require('memory-fs')
 const webpack = require('webpack')
-const chokidar = require('chokidar')
+// const chokidar = require('chokidar')
+// const MFS = require('memory-fs')
+// const webpackDevServer = require('webpack-dev-server')
+
 const clientConfig = require('./webpack.client.config')
 const serverConfig = require('./webpack.server.config')
 
@@ -19,7 +21,6 @@ const readFile = (fs, file) => {
   }
 }
 
-/*
 const options = {
   contentBase: './dist',
   hot: true,
@@ -28,7 +29,6 @@ const options = {
   serverSideRender: true,
   writeToDisk: true,
 };
-*/
 
 module.exports = function setupDevServer (templatePath, cb) {
 
@@ -52,12 +52,49 @@ module.exports = function setupDevServer (templatePath, cb) {
     }
   }
 
-  chokidar.watch(path.resolve(__dirname, 'src')).on('change', () => {
-    template = fs.readFileSync(templatePath, 'utf-8')
-    console.log('src updated.')
-    update()
+  // chokidar.watch(path.resolve(__dirname, 'src')).on('change', () => {
+  //   template = fs.readFileSync(templatePath, 'utf-8')
+  //   console.log('src updated.')
+  //   update()
+  // })
+
+  clientConfig.entry.app = ['webpack-hot-middleware/client', clientConfig.entry.app]
+  clientConfig.plugins.push(new webpack.HotModuleReplacementPlugin())
+
+  // webpackDevServer.addDevServerEntrypoints(clientConfig, options)
+  // webpackDevServer.addDevServerEntrypoints(serverConfig, options)
+
+  const compiler = webpack([clientConfig, serverConfig], (err, stats) => {
+    if (err) {
+      console.error(err.stack || err);
+      if (err.details) {
+        console.error(err.details);
+      }
+      return;
+    }
+
+    const info = stats.toJson();
+
+    if (stats.hasErrors()) {
+      console.error(info.errors);
+    }
+
+    if (stats.hasWarnings()) {
+      console.warn(info.warnings);
+    }
+    console.log('compiler done')
   })
 
+  // const mfs = new MFS()
+  // compiler.outputFileSystem = mfs
+
+  // const server = new webpackDevServer(compiler, options)
+
+  // server.listen(5000, 'localhost', () => {
+  //   console.log('dev server listening on port 5000');
+  // })
+
+  /*
   const clientCompiler = webpack(clientConfig, (err, stats) => {
     if (err || stats.hasErrors()) {
       // [在这里处理错误](#error-handling)
@@ -85,5 +122,6 @@ module.exports = function setupDevServer (templatePath, cb) {
   serverCompiler.hooks.done.tap('setup-dev-ssr', (stats) => {
     console.log('serverCompiler done')
   })
+   */
   return readyPromise
 }

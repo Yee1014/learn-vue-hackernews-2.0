@@ -1,71 +1,29 @@
-# vue-hackernews-2.0
+# learn-vue-hackernews-2.0
 
-HackerNews clone built with Vue 2.0 + vue-router + vuex, with server-side rendering.
+> 记录使用 Webpack 的一次体验
 
-<p align="center">
-  <a href="https://vue-hn.herokuapp.com" target="_blank">
-    <img src="https://cloud.githubusercontent.com/assets/499550/17546273/5aabc5fc-5eaf-11e6-8d6a-ad00937e8bd6.png" width="700px">
-    <br>
-    Live Demo
-  </a>
-</p>
+## 起因
 
-## Features
+1. [vue-hackernews-2.0](https://github.com/vuejs/vue-hackernews-2.0) 项目中使用webpack版本太旧
+2. 需要学习 *SSR* 的搭建
 
-> Note: in practice, it is unnecessary to code-split for an app of this size (where each async chunk is only a few kilobytes), nor is it optimal to extract an extra CSS file (which is only 1kb) -- they are used simply because this is a demo app showcasing all the supported features.
+## 知识点
 
-- Server Side Rendering
-  - Vue + vue-router + vuex working together
-  - Server-side data pre-fetching
-  - Client-side state & DOM hydration
-  - Automatically inlines CSS used by rendered components only
-  - Preload / prefetch resource hints
-  - Route-level code splitting
-- Progressive Web App
-  - App manifest
-  - Service worker
-  - 100/100 Lighthouse score
-- Single-file Vue Components
-  - Hot-reload in development
-  - CSS extraction for production
-- Animation
-  - Effects when switching route views
-  - Real-time list updates with FLIP Animation
+### 1. `new Webpack()` [Webpack Node 接口](https://webpack.docschina.org/api/node/)
 
-## A Note on Performance
+- 使用 _webpack()_ , 读取 _webpack.config.js_ （传入配置可以多份），完成编辑/打包
+- _run()_ 可以快速执行，但是使用完要 _close()_
+- _watch()_ 监听文件变更
+- *Stats对象* 可以获取更多编译信息
+- 默认写入到磁盘，可以使用 *memory-fs* 替换 *outputFileSystem* 写入到内存
 
-This is a demo primarily aimed at explaining how to build a server-side rendered Vue app, as a companion to our SSR documentation. There are a few things we probably won't do in production if we were optimizing for performance, for example:
+### 2. `webpack-dev-server`
 
-- This demo uses the Firebase-based HN API to showcase real-time updates, but the Firebase API also comes with a larger bundle, more JavaScript to parse on the client, and doesn't offer an efficient way to batch-fetch pages of items, so it impacts performance quite a bit on a cold start or cache miss.
+- 可以结合 _webpack.config.js_ 快速开启本地服务，并且支持模块热替换，自动刷新
 
-- In practice, it is unnecessary to code-split for an app of this size (where each async chunk is only a few kilobytes so the extra request isn't really worth it), nor is it optimal to extract an extra CSS file (which is only 1kb).
+### 3. `webpack-dev-middleware` 和 `webpack-hot-middleware`
 
-It is therefore not recommended to use this app as a reference for Vue SSR performance - instead, do your own benchmarking, and make sure to measure and optimize based on your actual app constraints.
+- 可以让自建 *server端* 接口 *webpack* 打包后的文件
+- 需要配置 `'webpack-hot-middleware/client'` 到 `entry` 入口的第一个
+- `webpack-dev-server` 内置集成了这两个插件
 
-## Architecture Overview
-
-<img width="973" alt="screen shot 2016-08-11 at 6 06 57 pm" src="https://cloud.githubusercontent.com/assets/499550/17607895/786a415a-5fee-11e6-9c11-45a2cfdf085c.png">
-
-**A detailed Vue SSR guide can be found [here](https://ssr.vuejs.org).**
-
-## Build Setup
-
-**Requires Node.js 7+**
-
-``` bash
-# install dependencies
-npm install # or yarn
-
-# serve in dev mode, with hot reload at localhost:8080
-npm run dev
-
-# build for production
-npm run build
-
-# serve in production mode
-npm start
-```
-
-## License
-
-MIT
