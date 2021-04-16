@@ -57,7 +57,7 @@ if (isProd) {
   //     renderer = createRenderer(bundle, options)
   //   }
   // )
-  readyPromise = require('./server-dev')(
+  readyPromise = require('./build/setup-dev-ssr')(
     templatePath,
     (bundle, options) => {
       renderer = createRenderer(bundle, options)

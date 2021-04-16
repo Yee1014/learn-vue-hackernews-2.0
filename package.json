@@ -1,16 +1,14 @@
 {
-  "name": "vue-hackernews-2.0-test",
+  "name": "vue-hackernews-2.0",
   "description": "A Vue.js project",
   "author": "Evan You <yyx990803@gmail.com>",
   "private": true,
   "scripts": {
-    "dev": "node server",
-    "dev-local": "rimraf dist && node server-dev",
+    "dev": "rimraf dist && node server",
     "start": "cross-env NODE_ENV=production node server",
     "build": "rimraf dist && npm run build:client && npm run build:server",
-    "build:client": "cross-env NODE_ENV=production webpack --config build/webpack.client.config.js --progress --hide-modules",
-    "build:server": "cross-env NODE_ENV=production webpack --config build/webpack.server.config.js --progress --hide-modules",
-    "postinstall": "npm run build"
+    "build:client": "cross-env NODE_ENV=production webpack --config build/webpack.client.config.js --progress",
+    "build:server": "cross-env NODE_ENV=production webpack --config build/webpack.server.config.js --progress"
   },
   "dependencies": {
     "core-js": "^3.10.1",
@@ -34,7 +32,7 @@
     "express": "^4.17.1",
     "extract-css-chunks-webpack-plugin": "^4.9.0",
     "file-loader": "^6.2.0",
-    "firebase": "^4.6.2",
+    "firebase": "^4.13.1",
     "friendly-errors-webpack-plugin": "^1.7.0",
     "lru-cache": "^4.1.5",
     "memory-fs": "^0.5.0",

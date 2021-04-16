@@ -9,17 +9,17 @@ const path = require('path')
 const MFS = require('memory-fs')
 const webpack = require('webpack')
 const chokidar = require('chokidar')
-const clientConfig = require('./build/webpack.client.config')
-const serverConfig = require('./build/webpack.server.config')
-const webpackDevServer = require('webpack-dev-server');
+const clientConfig = require('./webpack.client.config')
+const serverConfig = require('./webpack.server.config')
 
 const readFile = (fs, file) => {
   try {
-    return fs.readFileSync(path.join(path.resolve(__dirname, 'dist'), file), 'utf-8')
+    return fs.readFileSync(path.join(path.resolve(__dirname, '../dist'), file), 'utf-8')
   } catch (e) {
   }
 }
 
+/*
 const options = {
   contentBase: './dist',
   hot: true,
@@ -28,8 +28,9 @@ const options = {
   serverSideRender: true,
   writeToDisk: true,
 };
+*/
 
-module.exports = function setup (templatePath, cb) {
+module.exports = function setupDevServer (templatePath, cb) {
 
   let clientManifest
   let bundle
@@ -69,7 +70,7 @@ module.exports = function setup (templatePath, cb) {
     ))
     update()
   });
-  clientCompiler.hooks.done.tap('server-dev', (stats) => {
+  clientCompiler.hooks.done.tap('setup-dev-ssr', (stats) => {
     console.log('clientCompiler done')
   })
   const serverCompiler = webpack(serverConfig, (err, stats) => {
@@ -81,14 +82,8 @@ module.exports = function setup (templatePath, cb) {
     bundle = JSON.parse(readFile(fs, 'vue-ssr-server-bundle.json'))
     update()
   });
-  serverCompiler.hooks.done.tap('server-dev', (stats) => {
+  serverCompiler.hooks.done.tap('setup-dev-ssr', (stats) => {
     console.log('serverCompiler done')
   })
-// const server1 = new webpackDevServer(clientCompiler, options);
-// const server = new webpackDevServer(serverCompiler, options);
-
-// server1.listen(5000, 'localhost', () => {
-//   console.log('dev server listening on port 5000');
-// });
   return readyPromise
 }
